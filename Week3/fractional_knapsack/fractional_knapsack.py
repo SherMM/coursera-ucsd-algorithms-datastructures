@@ -5,7 +5,7 @@ def get_optimal_value(capacity, weights, values):
     value = 0 # value of items in bag
     weight = 0 # weight of items in bag
     items = {v/w: (v,w) for v,w in zip(values, weights)}
-    while weight != capacity:
+    while weight != capacity and items:
         best = max(items)
         item_weight = items[best][1]
         item_value = items[best][0]
