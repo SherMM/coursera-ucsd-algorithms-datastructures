@@ -4,21 +4,20 @@ import sys
 def get_optimal_value(capacity, weights, values):
     value = 0 # value of items in bag
     weight = 0 # weight of items in bag
-    vals = sorted(values)
-    items = dict(zip(values, weights))
-    best = values[-1]
-    while items[best] + weight <= capacity:
-        value += best
-        weight += items[best]
-        vals.pop()
-        if not vals:
-            break
-        best = vals[-1]
-        while items[best] + weight > capacity:
-            vals.pop()
-            if not vals:
-                break
-            best = vals[-1]
+    items = {v/w: (v,w) for v,w in zip(values, weights)}
+    while weight != capacity:
+        best = max(items)
+        item_weight = items[best][1]
+        item_value = items[best][0]
+        if item_weight + weight <= capacity:
+            weight += item_weight
+            value += item_value
+        else:
+            diff = capacity - weight
+            frac = diff*best
+            weight += diff
+            value += frac
+        del items[best]
     return value
 
 if __name__ == "__main__":
