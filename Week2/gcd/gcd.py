@@ -1,3 +1,4 @@
+# Uses python3
 import sys
 
 def gcd(a, b):
@@ -5,6 +6,8 @@ def gcd(a, b):
     Returns the greatest common divisor
     of two numbers, a & b
     '''
+    assert (1 <= a <= 2*10**9)
+    assert (1 <= b <= 2*10**9)
     # simulate denominator and numerator
     d = b
     n = a
