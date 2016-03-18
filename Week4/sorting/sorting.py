@@ -5,17 +5,14 @@ import random
 
 def partition3(a, l, r):
 
-    print("Left: " + str(l) + " Right: " + str(r))
     sub = a[l: r + 1]
     x = sub[0]
-    print("pivot")
-    print(x)
 
     low = [v for v in sub if v < x]
     equal = [v for v in sub if v == x]
     high = [v for v in sub if v > x]
 
-    lt = len(low)
+    lt = l + len(low)
     gt = lt + len(equal)-1
 
     equal.extend(high)
@@ -43,14 +40,6 @@ def randomized_quick_sort(a, l, r):
     a[l], a[k] = a[k], a[l]
     # use partition3
     lt, gt = partition3(a, l, r)
-    print("Low")
-    print(a[l: lt])
-    print("Equal")
-    print(a[lt: gt+1])
-    print("High")
-    print(a[gt + 1: r + 1])
-    print("A")
-    print(a)
     randomized_quick_sort(a, l, lt - 1)
     randomized_quick_sort(a, gt + 1, r)
 
@@ -58,14 +47,7 @@ def randomized_quick_sort(a, l, r):
 if __name__ == '__main__':
     input = sys.stdin.read()
     n, *a = list(map(int, input.split()))
-    print("Original")
-    print(a)
-    #randomized_quick_sort(a, 0, n - 1)
-    '''
+    randomized_quick_sort(a, 0, n - 1)
     for x in a:
         print(x, end=' ')
     print()
-    '''
-
-    print(partition3(a, 0, 21))
-    print(a)
