@@ -1,4 +1,5 @@
 # python3
+from collections import deque
 
 class Request:
     def __init__(self, arrival_time, process_time):
@@ -13,11 +14,34 @@ class Response:
 class Buffer:
     def __init__(self, size):
         self.size = size
-        self.finish_time_ = []
+        self.finish_time = deque()
 
     def Process(self, request):
-        # write your code here
-        return Response(False, -1)
+        # buffer empty, process immediately
+        if len(self.finish_time) == 0:
+            self.finish_time.append(request.process_time)
+            return Response(False, request.arrival_time)
+
+        # pop all packets with finish times less
+        # than new packet's arrival time
+        curr_arrv = request.arrival_time
+        while self.finish_time[0] <= curr_arrv:
+            self.finish_time.popleft()
+
+        # buffer is still full, drop packet
+        if len(self.finish_time) == self.size:
+            return Response(True, -1)
+        else:
+            # get last added finish time, to determine
+            # new packet's finish time
+            top_time = self.finish_time[-1]
+            curr_proc = request.process_time
+            finish = top_time + curr_proc
+            self.finish_time.append(finish)
+            return Response(False, top_time)
+
+
+
 
 def ReadRequests(count):
     requests = []
