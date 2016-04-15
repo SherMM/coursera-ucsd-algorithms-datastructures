@@ -17,19 +17,49 @@ class HeapBuilder:
         for swap in self._swaps:
             print(swap[0], swap[1])
 
+    def Size(self):
+        return len(self._data)
+
+    def Parent(self, i):
+        return (i - 1) // 2
+
+    def LeftChild(self, i):
+        return 2 * i + 1
+
+    def RightChild(self, i):
+        return 2 * i + 2
+
+    def Swap(self, i, j):
+        temp = self._data[i]
+        self._data[i] = self._data[j]
+        self._data[j] = temp
+
+    def SiftUp(self, i):
+        while i > 0 and self._data[self.Parent(i)] > self._data[i]:
+            self._swaps.append((self.Parent(i), i))
+            self.Swap(self.Parent(i), i)
+            i = self.Parent(i)
+
+    def SiftDown(self, i):
+        maxIdx = i
+        left = self.LeftChild(i)
+        if left < self.Size() and self._data[left] < self._data[maxIdx]:
+            maxIdx = left
+        right = self.RightChild(i)
+        if right < self.Size() and self._data[right] < self._data[maxIdx]:
+            maxIdx = right
+        if i != maxIdx:
+            self._swaps.append((i, maxIdx))
+            self.Swap(i, maxIdx)
+            self.SiftDown(maxIdx)
+
+    def BuildHeap(self):
+        n = self.Size() // 2
+        for i in range(n, -1, -1):
+            self.SiftDown(i)
+
     def GenerateSwaps(self):
-        # The following naive implementation just sorts
-        # the given sequence using selection sort algorithm
-        # and saves the resulting sequence of swaps.
-        # This turns the given array into a heap,
-        # but in the worst case gives a quadratic number of swaps.
-        #
-        # TODO: replace by a more efficient implementation
-        for i in range(len(self._data)):
-            for j in range(i + 1, len(self._data)):
-                if self._data[i] > self._data[j]:
-                    self._swaps.append((i, j))
-                    self._data[i], self._data[j] = self._data[j], self._data[i]
+        self.BuildHeap()
 
     def Solve(self):
         self.ReadData()

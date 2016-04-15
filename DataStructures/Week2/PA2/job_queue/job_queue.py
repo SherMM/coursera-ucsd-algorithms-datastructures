@@ -1,4 +1,5 @@
 # python3
+import heapq as pq
 
 class JobQueue:
     def read_data(self):
@@ -8,7 +9,7 @@ class JobQueue:
 
     def write_response(self):
         for i in range(len(self.jobs)):
-          print(self.assigned_workers[i], self.start_times[i]) 
+          print(self.assigned_workers[i], self.start_times[i])
 
     def assign_jobs(self):
         # TODO: replace this code with a faster algorithm.
@@ -32,4 +33,3 @@ class JobQueue:
 if __name__ == '__main__':
     job_queue = JobQueue()
     job_queue.solve()
-
