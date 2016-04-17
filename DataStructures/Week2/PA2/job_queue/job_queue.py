@@ -17,36 +17,36 @@ class JobQueue:
         self.assigned_workers = [None] * len(self.jobs)
         self.start_times = [None] * len(self.jobs)
         queue = []
+        index = 0      # number of processed jobs
+        thread = 0     # current thread
 
-        # number of jobs being processed
-        count = 0
-        # number of processed jobs
-        index = 0
-
-        # handle jobs that take 0 time to process
-        while self.jobs[count] == 0:
-            self.assigned_workers[count] = 0
-            self.start_times[count] = 0
-            count += 1
-            index += 1
-
-        # handle all initially empty threads
-        for i in range(self.num_workers):
-            #finish_time = self.jobs[i]
-            finish_time = self.jobs[count]
-            pq.heappush(queue, (finish_time, 0, i))
-            count += 1
+        # handle all initially non-busy threads
+        while thread < self.num_workers and index < len(self.jobs):
+            finish_time = self.jobs[index]
+            if finish_time == 0:
+                # don't move to next thread
+                self.assigned_workers[index] = thread
+                self.start_times[index] = 0
+                index += 1
+            else:
+                # all initially empty threads start processing at t=0
+                self.assigned_workers[index] = thread
+                self.start_times[index] = 0
+                # if num workers less than num jobs
+                if self.num_workers < len(self.jobs):
+                    pq.heappush(queue, (finish_time, thread, 0))
+                thread += 1
+                index += 1
 
         while len(queue) != 0:
-            finish, start, worker = pq.heappop(queue)
-            self.assigned_workers[index] = worker
-            self.start_times[index] = start
-            index += 1
-            # next job processing time
-            if count < len(self.jobs):
-                next_job = self.jobs[count]
-                pq.heappush(queue, (finish + next_job, finish, worker))
-                count += 1
+            # get next available thread
+            finish, worker, start = pq.heappop(queue)
+            if index < len(self.jobs):
+                next_job = self.jobs[index]
+                self.assigned_workers[index] = worker
+                self.start_times[index] = finish
+                pq.heappush(queue, (finish + next_job, worker, finish))
+                index += 1
 
     def slow_assign_jobs(self):
         self.assigned_workers = [None] * len(self.jobs)
