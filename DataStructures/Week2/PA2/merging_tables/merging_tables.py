@@ -13,19 +13,19 @@ def getParent(table):
     return parent[table]
 
 def merge(destination, source):
+    global ans
     realDestination, realSource = getParent(destination), getParent(source)
-
     if realDestination == realSource:
         return False
-
-    # merge two components
-    # use union by rank heuristic 
-    # update ans with the new maximum table size
-    
+    lines[realDestination] += lines[realSource]
+    lines[realSource] = 0
+    parent[realSource] = realDestination
+    ans = max(lines)
     return True
 
 for i in range(m):
+    #print(parent)
+    #print(lines)
     destination, source = map(int, sys.stdin.readline().split())
     merge(destination - 1, source - 1)
     print(ans)
-    
