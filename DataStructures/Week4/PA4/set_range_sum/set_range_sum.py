@@ -1,7 +1,7 @@
 # python3
 
 from sys import stdin
-
+from collections import deque
 # Splay tree implementation
 
 # Vertex of a splay tree
@@ -19,13 +19,14 @@ def update(v):
         return
     v.sum = v.key + (v.left.sum if v.left != None else 0) + \
         (v.right.sum if v.right != None else 0)
-    if v.left != None:
+    if v.left:
         v.left.parent = v
-    if v.right != None:
+    if v.right:
         v.right.parent = v
 
 
 def smallRotation(v):
+    # zig
     parent = v.parent
     if parent == None:
         return
@@ -61,7 +62,6 @@ def bigRotation(v):
         # Zig-zag
         smallRotation(v)
         smallRotation(v)
-        pass
 
 # Makes splay of the given vertex and makes
 # it the new root.
@@ -71,7 +71,12 @@ def splay(v):
     if v == None:
         return None
     while v.parent != None:
-        bigRotation(v)
+        if v.parent.parent == None:
+            # zig case
+            smallRotation(v)
+        else:
+            # all others
+            bigRotation(v)
     return v
 
 # Searches for the given key in the tree with the given root
@@ -103,10 +108,20 @@ def find(root, key):
 
 
 def split(root, key):
-    (result, root) = find(root, key)
+    result, root = find(root, key)
     if result == None:
         return (root, None)
-    # Complete the implementation of split
+    root = splay(result)
+    right_subt = root.right
+    left_subt = root.left
+    # result key will be >= search key
+    # (result == None -> case already handled)
+    if left_subt:
+        left_subt.parent = None
+        root.left = None
+        update(left_subt)
+        update(root)
+    return left_subt, root
 
 
 def merge(left, right):
@@ -114,7 +129,21 @@ def merge(left, right):
         return right
     if right == None:
         return left
-    # Complete the implementation of merge
+    # find biggest node in left subtree
+    result, v = find(left, find_max_key(left))
+    v = splay(result)
+    v.right = right
+    update(v)
+    v = splay(right)
+    return v
+
+
+def find_max_key(root):
+    v = root
+    while v.right != None:
+        if v.right.key > v.key:
+            v = v.right
+    return v.key
 
 
 # Code that uses splay tree to solve the problem
@@ -130,15 +159,38 @@ def insert(x):
         new_vertex = Vertex(x, x, None, None, None)
     root = merge(merge(left, new_vertex), right)
 
-
 def erase(x):
-    # Implement erase yourself
-    pass
-
+    global root
+    result, root = find(root, x)
+    if result and result.key == x:
+        if result.right:
+            root = splay(result.right)
+        elif result.parent:
+            root = splay(result.parent)
+        root = splay(result)
+        # get subtrees
+        lsub = root.left
+        rsub = root.right
+        if rsub:
+            root = None
+            rsub.parent = None
+            root = rsub
+            root.left = lsub
+            update(root)
+        elif lsub:
+            root = None
+            lsub.parent = None
+            root = lsub
+            update(root)
+        else:
+            # one node in tree
+            root = None
 
 def search(x):
-    # Implement find yourself
-
+    global root
+    result, root = find(root, x)
+    if result and result.key == x:
+        return True
     return False
 
 
@@ -146,10 +198,23 @@ def sum(fr, to):
     global root
     (left, middle) = split(root, fr)
     (middle, right) = split(middle, to + 1)
-    ans = 0
-    # Complete the implementation of sum
-
+    # sum elements in middle tree
+    ans = middle.sum
     return ans
+
+def splayprint():
+    global root
+    nodes = []
+    nodes.append(root)
+    while len(nodes) > 0:
+        e = nodes.pop(0)
+        print(e.key if e is not None else "-")
+        print(e.left.key if e.left is not None else "-",
+              e.right.key if e.right is not None else "-")
+        if e.left is not None:
+            nodes.append(e.left)
+        if e.right is not None:
+            nodes.append(e.right)
 
 MODULO = 1000000001
 n = int(stdin.readline())
@@ -172,3 +237,10 @@ for i in range(n):
                   MODULO, (r + last_sum_result) % MODULO)
         print(res)
         last_sum_result = res % MODULO
+
+    '''
+    if root:
+        print()
+        splayprint()
+        print()
+    '''
