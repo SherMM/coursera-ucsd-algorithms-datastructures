@@ -1,0 +1,54 @@
+37
+- 30
+s 37 62
+? 87
+- 34
++ 17
+? 59
+? 15
++ 16
+- 17
+s 44 44
+? 36
+s 8 23
+- 16
+? 2
+- 82
+- 41
++ 95
+- 95
++ 43
+s 58 88
++ 97
++ 73
+? 96
++ 40
+- 43
+- 95
++ 85
+s 81 98
+? 81
++ 92
+? 58
++ 50
+- 95
+- 40
+? 14
++ 99
+? 71
+
+0
+Not found
+Not found
+Not found
+0
+Not found
+16
+Not found
+0
+Not found
+182
+Not found
+Not found
+Not found
+Not found

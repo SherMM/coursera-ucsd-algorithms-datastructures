@@ -5,8 +5,6 @@ from collections import deque
 # Splay tree implementation
 
 # Vertex of a splay tree
-
-
 class Vertex:
 
     def __init__(self, key, sum, left, right, parent):
@@ -119,7 +117,6 @@ def split(root, key):
     if left_subt:
         left_subt.parent = None
         root.left = None
-        update(left_subt)
         update(root)
     return left_subt, root
 
@@ -134,22 +131,19 @@ def merge(left, right):
     v = splay(result)
     v.right = right
     update(v)
-    v = splay(right)
     return v
 
 
 def find_max_key(root):
     v = root
-    while v.right != None:
+    while v.right:
         if v.right.key > v.key:
             v = v.right
     return v.key
 
-
 # Code that uses splay tree to solve the problem
 
 root = None
-
 
 def insert(x):
     global root
@@ -161,12 +155,19 @@ def insert(x):
 
 def erase(x):
     global root
+    if root == None:
+        # empty tree
+        return
+    if root.key == x and (root.left == None and root.right == None):
+        # one node (only a root)
+        root = None
+        return
     result, root = find(root, x)
     if result and result.key == x:
-        if result.right:
-            root = splay(result.right)
-        elif result.parent:
-            root = splay(result.parent)
+        # item x was found
+        successor = find_successor(result)
+        root = splay(successor)
+        # splay the node we want to remove to top
         root = splay(result)
         # get subtrees
         lsub = root.left
@@ -177,14 +178,21 @@ def erase(x):
             root = rsub
             root.left = lsub
             update(root)
-        elif lsub:
+        else:
             root = None
             lsub.parent = None
             root = lsub
             update(root)
-        else:
-            # one node in tree
-            root = None
+
+def find_successor(node):
+    successor = node.right
+    if successor:
+        while successor.left:
+            successor = successor.left
+    else:
+        successor = node.parent
+    return successor
+
 
 def search(x):
     global root
@@ -199,22 +207,30 @@ def sum(fr, to):
     (left, middle) = split(root, fr)
     (middle, right) = split(middle, to + 1)
     # sum elements in middle tree
-    ans = middle.sum
+    ans = 0
+    if middle:
+        ans = middle.sum
+    # merge tree back together
+    sub = merge(left, middle)
+    root = merge(sub, right)
     return ans
 
-def splayprint():
-    global root
-    nodes = []
-    nodes.append(root)
-    while len(nodes) > 0:
-        e = nodes.pop(0)
-        print(e.key if e is not None else "-")
-        print(e.left.key if e.left is not None else "-",
-              e.right.key if e.right is not None else "-")
-        if e.left is not None:
-            nodes.append(e.left)
-        if e.right is not None:
-            nodes.append(e.right)
+def splayprint(root):
+    v = root
+    if v:
+        nodes = []
+        nodes.append(v)
+        while len(nodes) > 0:
+            e = nodes.pop(0)
+            print(e.key if e is not None else "-")
+            print(e.left.key if e.left is not None else "-",
+                  e.right.key if e.right is not None else "-")
+            if e.left is not None:
+                nodes.append(e.left)
+            if e.right is not None:
+                nodes.append(e.right)
+    else:
+        print(None)
 
 MODULO = 1000000001
 n = int(stdin.readline())
@@ -237,10 +253,3 @@ for i in range(n):
                   MODULO, (r + last_sum_result) % MODULO)
         print(res)
         last_sum_result = res % MODULO
-
-    '''
-    if root:
-        print()
-        splayprint()
-        print()
-    '''
