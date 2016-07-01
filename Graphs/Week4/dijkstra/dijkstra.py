@@ -11,27 +11,22 @@ def distance(graph, cost, s, t, infinity=float("inf")):
         prev.append(None)
         verts.append(i)
     dists[s] = 0
+    processed = set()
     queue = list(zip(dists, verts))
     hp.heapify(queue)
     while queue:
         d, u = hp.heappop(queue)
-        for node in graph[u]:
-            w = cost[(u, node)]
-            if dists[node] > d + w:
-                dists[node] = d + w
-                prev[node] = u
-                change_priority(queue, node, dists[node])
+        if u not in processed:
+            processed.add(u)
+            for node in graph[u]:
+                w = cost[(u, node)]
+                if dists[node] > d + w:
+                    dists[node] = d + w
+                    prev[node] = u
+                    hp.heappush(queue, (dists[node], node))
     if dists[t] == infinity:
         return -1
     return dists[t]
-
-
-def change_priority(queue, node, d):
-    for i, (dist, vert) in enumerate(queue):
-        if vert == node:
-            queue[i] = (d, node)
-            break
-    hp.heapify(queue)
 
 
 if __name__ == '__main__':
