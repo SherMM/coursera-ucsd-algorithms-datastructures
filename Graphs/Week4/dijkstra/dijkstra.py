@@ -1,12 +1,37 @@
 #Uses python3
 
 import sys
-import queue
+import heapq as hp
 
 
 def distance(graph, cost, s, t, infinity=float("inf")):
-    
-    return -1
+    dists, prev, verts = [], [], []
+    for i in range(len(graph)):
+        dists.append(infinity)
+        prev.append(None)
+        verts.append(i)
+    dists[s] = 0
+    queue = list(zip(dists, verts))
+    hp.heapify(queue)
+    while queue:
+        d, u = hp.heappop(queue)
+        for node in graph[u]:
+            w = cost[(u, node)]
+            if dists[node] > d + w:
+                dists[node] = d + w
+                prev[node] = u
+                change_priority(queue, node, dists[node])
+    if dists[t] == infinity:
+        return -1
+    return dists[t]
+
+
+def change_priority(queue, node, d):
+    for i, (dist, vert) in enumerate(queue):
+        if vert == node:
+            queue[i] = (d, node)
+            break
+    hp.heapify(queue)
 
 
 if __name__ == '__main__':
@@ -22,6 +47,4 @@ if __name__ == '__main__':
         graph[a - 1].append(b - 1)
         cost[(a-1, b-1)] = w
     s, t = data[0] - 1, data[1] - 1
-    print(graph)
-    print(cost)
     print(distance(graph, cost, s, t))
